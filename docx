@@ -1,0 +1,159 @@
+using System;
+using System.Collections.Generic;
+
+// Interface: IPerson
+public interface IPerson
+{
+    string Ad { get; set; }
+    string Soyad { get; set; }
+    void BilgiGoster(); // Her kişiye ait bilgilerin gösterilmesi metodu
+}
+
+// Temel sınıf: Person
+public class Person : IPerson
+{
+    public string Ad { get; set; }
+    public string Soyad { get; set; }
+
+    public Person(string ad, string soyad)
+    {
+        Ad = ad;
+        Soyad = soyad;
+    }
+
+    // BilgiGoster metodu, türetilmiş sınıflarda override edilebilir
+    public virtual void BilgiGoster()
+    {
+        Console.WriteLine($"Ad: {Ad}, Soyad: {Soyad}");
+    }
+}
+
+// Öğrenci sınıfı: Ogrenci
+public class Ogrenci : Person
+{
+    public int OgrenciNo { get; set; }
+    public List<Ders> KayitliDersler { get; set; }
+
+    public Ogrenci(string ad, string soyad, int ogrenciNo) : base(ad, soyad)
+    {
+        OgrenciNo = ogrenciNo;
+        KayitliDersler = new List<Ders>();
+    }
+
+    // Öğrencinin bilgilerini gösterirken ders kaydını da gösterebiliriz
+    public override void BilgiGoster()
+    {
+        base.BilgiGoster();
+        Console.WriteLine($"Öğrenci No: {OgrenciNo}");
+        Console.WriteLine("Kayıtlı Dersler:");
+        foreach (var ders in KayitliDersler)
+        {
+            Console.WriteLine($"- {ders.Ad}");
+        }
+    }
+}
+
+// Öğretim Görevlisi sınıfı: OgretimGorevlisi
+public class OgretimGorevlisi : Person
+{
+    public string Bolum { get; set; }
+    public List<Ders> VerdigiDersler { get; set; }
+
+    public OgretimGorevlisi(string ad, string soyad, string bolum) : base(ad, soyad)
+    {
+        Bolum = bolum;
+        VerdigiDersler = new List<Ders>();
+    }
+
+    // Öğretim görevlisinin bilgilerini gösterirken derslerini de gösterebiliriz
+    public override void BilgiGoster()
+    {
+        base.BilgiGoster();
+        Console.WriteLine($"Bölüm: {Bolum}");
+        Console.WriteLine("Verdiği Dersler:");
+        foreach (var ders in VerdigiDersler)
+        {
+            Console.WriteLine($"- {ders.Ad}");
+        }
+    }
+
+    // Öğretim Görevlisinin verdiği dersleri göstermek için
+    public void OgretimGorevlisiDersBilgisiGoster()
+    {
+        Console.WriteLine($"{Ad} {Soyad} adlı öğretim görevlisi şu dersleri vermektedir:");
+        foreach (var ders in VerdigiDersler)
+        {
+            Console.WriteLine($"- {ders.Ad}");
+        }
+    }
+}
+
+// Ders sınıfı: Ders
+public class Ders
+{
+    public string Ad { get; set; }
+    public int Kredi { get; set; }
+    public OgretimGorevlisi OgretimGorevlisi { get; set; }
+    public List<Ogrenci> KayitliOgrenciler { get; set; }
+
+    public Ders(string ad, int kredi, OgretimGorevlisi ogretimGorevlisi)
+    {
+        Ad = ad;
+        Kredi = kredi;
+        OgretimGorevlisi = ogretimGorevlisi;
+        KayitliOgrenciler = new List<Ogrenci>();
+    }
+
+    public void OgrenciKaydet(Ogrenci ogrenci)
+    {
+        KayitliOgrenciler.Add(ogrenci);
+        ogrenci.KayitliDersler.Add(this);
+    }
+
+    // Dersin bilgilerini gösterme metodu
+    public void DersBilgisiGoster()
+    {
+        Console.WriteLine($"Ders: {Ad}, Kredi: {Kredi}, Öğretim Görevlisi: {OgretimGorevlisi.Ad} {OgretimGorevlisi.Soyad}");
+        Console.WriteLine("Kayıtlı Öğrenciler:");
+        foreach (var ogrenci in KayitliOgrenciler)
+        {
+            Console.WriteLine($"- {ogrenci.Ad} {ogrenci.Soyad}");
+        }
+    }
+}
+
+// Ana Program
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Öğretim Görevlisi Oluşturma
+        OgretimGorevlisi ogretimGorevlisi = new OgretimGorevlisi("Dr. Ahmet", "Yılmaz", "Bilgisayar Mühendisliği");
+
+        // Ders Oluşturma
+        Ders yazilimDers = new Ders("Yazılım Mühendisliği", 3, ogretimGorevlisi);
+        Ders veriDers = new Ders("Veri Yapıları", 2, ogretimGorevlisi);
+
+        // Öğrenci Oluşturma
+        Ogrenci ogrenci1 = new Ogrenci("Ali", "Veli", 12345);
+        Ogrenci ogrenci2 = new Ogrenci("Ayşe", "Kara", 67890);
+
+        // Öğrencileri Derslere Kaydetme
+        yazilimDers.OgrenciKaydet(ogrenci1);
+        veriDers.OgrenciKaydet(ogrenci2);
+
+        // Ders Bilgilerini Gösterme
+        yazilimDers.DersBilgisiGoster();
+        veriDers.DersBilgisiGoster();
+
+        // Öğrenci Bilgilerini Gösterme
+        ogrenci1.BilgiGoster();
+        ogrenci2.BilgiGoster();
+
+        // Öğretim Görevlisi Bilgilerini Gösterme
+        ogretimGorevlisi.BilgiGoster();
+
+        // Öğretim Görevlisinin verdiği dersleri gösterme
+        ogretimGorevlisi.OgretimGorevlisiDersBilgisiGoster();
+    }
+}
